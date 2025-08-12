@@ -231,4 +231,3 @@ prisma/
 - Apply migrations before running: `npx prisma migrate deploy`
 - Regenerate Prisma client if schema changed: `npx prisma generate`
 - GraphQL endpoint is `/graphql` (POST). If you want a browser IDE, enable the landing page plugin (see above).
-

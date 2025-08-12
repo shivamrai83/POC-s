@@ -1,0 +1,43 @@
+generator client {
+  provider = "prisma-client-js"
+}
+ 
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://postgres:postgres@localhost:5433/graphql_example?connect_timeout=300"
+}
+
+model Movie {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  description String?  @default("")
+
+  updatedAt DateTime @default(now())
+  title     String?
+
+  movieComment MovieComment[]
+}
+
+model MovieComment {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  description String?  @default("") // some description to a movie
+  likes       Int // how many people liked the movie
+
+  // movie which was commented - cascade on delete
+  Movie   Movie? @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  movieId Int
+
+  // user who created a comment
+  User   User? @relation(fields: [userId], references: [id])
+  userId Int
+}
+
+model User {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  description String?  @default("")
+  username    String
+
+  MovieComment MovieComment[]
+}
