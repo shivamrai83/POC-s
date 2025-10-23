@@ -1,9 +1,9 @@
-import { S3Client, ListObjectsV2Command, GetObjectCommand, PutObjectCommand, CopyObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, ListObjectsV2Command, GetObjectCommand } from '@aws-sdk/client-s3';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-// Create S3 client
+// Create S3 client (read-only configuration)
 export const s3Client = new S3Client({
   region: process.env.AWS_REGION || 'us-east-1',
   credentials: {
@@ -48,26 +48,27 @@ export async function listAllObjects(bucketName, prefix = '') {
 }
 
 /**
- * Copy object to a different storage class
+ * Get object metadata
  * @param {string} bucketName - Name of the S3 bucket
  * @param {string} objectKey - Object key
- * @param {string} storageClass - Target storage class
- * @returns {Promise<object>} Copy result
+ * @returns {Promise<object>} Object metadata
  */
-export async function changeStorageClass(bucketName, objectKey, storageClass) {
+export async function getObjectMetadata(bucketName, objectKey) {
   try {
-    const command = new CopyObjectCommand({
+    const command = new GetObjectCommand({
       Bucket: bucketName,
-      CopySource: `${bucketName}/${objectKey}`,
       Key: objectKey,
-      StorageClass: storageClass,
-      MetadataDirective: 'COPY',
     });
 
     const response = await s3Client.send(command);
-    return response;
+    return {
+      storageClass: response.StorageClass,
+      contentLength: response.ContentLength,
+      lastModified: response.LastModified,
+      metadata: response.Metadata,
+    };
   } catch (error) {
-    console.error(`Error changing storage class for ${objectKey}:`, error);
+    console.error(`Error getting metadata for ${objectKey}:`, error);
     throw error;
   }
 }
@@ -75,6 +76,6 @@ export async function changeStorageClass(bucketName, objectKey, storageClass) {
 export default {
   s3Client,
   listAllObjects,
-  changeStorageClass,
+  getObjectMetadata,
 };
 

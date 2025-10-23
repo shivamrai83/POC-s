@@ -1,5 +1,9 @@
 # Quick Setup Guide
 
+## S3 Storage Cost Savings Recommendation Tool
+
+This tool **analyzes your S3 buckets** and **generates cost savings recommendations**. It does **NOT make any changes** to your S3 buckets - it only reads and analyzes.
+
 ## Step-by-Step Setup
 
 ### 1. Install Dependencies
@@ -40,8 +44,10 @@ vim .env
 
 Required values:
 - `DB_PASSWORD` - Your PostgreSQL password
-- `AWS_ACCESS_KEY_ID` - Your AWS access key
+- `AWS_ACCESS_KEY_ID` - Your AWS access key (read-only permissions sufficient)
 - `AWS_SECRET_ACCESS_KEY` - Your AWS secret key
+
+**Note**: Only read permissions are needed: `s3:ListBucket`, `s3:GetObject`, `s3:GetObjectAttributes`
 
 ### 4. Add Your Buckets to Database
 
@@ -56,28 +62,39 @@ VALUES
 
 Or use a script to import from AWS (you'll need to create this based on your needs).
 
-### 5. Run in Dry-Run Mode First
+### 5. Generate Savings Recommendations
 
-Always test first:
+Run the tool:
 ```bash
 npm start
 ```
 
-This will analyze buckets and show potential savings without making changes.
+This will:
+- Analyze your S3 buckets
+- Calculate potential cost savings
+- Generate detailed recommendations
+- Save recommendations to database
+- Display comprehensive savings report
 
-### 6. Review the Output
+**Important**: This tool is read-only and will NOT make any changes to your S3 buckets.
 
-Check:
+### 6. Review the Recommendations
+
+Check the output for:
 - Which buckets were analyzed
-- How many objects need right-sizing
-- Potential cost savings
-- Any errors or warnings
+- Objects with optimization potential
+- Potential monthly and annual savings
+- Storage class transition recommendations
+- Lifecycle policy suggestions
 
-### 7. Run in Live Mode (Optional)
+### 7. Implement Recommendations (Manual)
 
-If satisfied with dry-run results:
-1. Edit `.env` and set `DRY_RUN=false`
-2. Run: `npm start`
+After reviewing recommendations:
+1. Go to AWS S3 Console
+2. Select a bucket from the recommendations
+3. Navigate to Management → Lifecycle
+4. Create lifecycle rules based on the tool's suggestions
+5. Monitor cost savings in AWS Cost Explorer
 
 ## Common Commands
 
@@ -85,7 +102,7 @@ If satisfied with dry-run results:
 # Install dependencies
 npm install
 
-# Run in dry-run mode
+# Generate savings recommendations
 npm start
 
 # Run with auto-reload (development)
@@ -94,11 +111,14 @@ npm run dev
 # Check database connection
 psql -U postgres -d s3_management -c "SELECT COUNT(*) FROM s3_buckets;"
 
-# View bucket statistics
-psql -U postgres -d s3_management -c "SELECT * FROM bucket_statistics;"
+# View bucket statistics with savings
+psql -U postgres -d s3_management -c "SELECT * FROM bucket_statistics ORDER BY latest_monthly_savings DESC;"
 
-# View recent operations
-psql -U postgres -d s3_management -c "SELECT * FROM rightsizing_operations ORDER BY operation_timestamp DESC LIMIT 10;"
+# View recent recommendations
+psql -U postgres -d s3_management -c "SELECT bucket_name, estimated_monthly_savings, estimated_annual_savings, recommendation_timestamp FROM savings_recommendations ORDER BY recommendation_timestamp DESC LIMIT 10;"
+
+# View detailed recommendations for a bucket
+psql -U postgres -d s3_management -c "SELECT bucket_name, estimated_monthly_savings, details FROM savings_recommendations WHERE bucket_name = 'your-bucket-name' ORDER BY recommendation_timestamp DESC LIMIT 1;"
 ```
 
 ## Verification Checklist
@@ -107,9 +127,9 @@ psql -U postgres -d s3_management -c "SELECT * FROM rightsizing_operations ORDER
 - [ ] PostgreSQL running (`pg_isready`)
 - [ ] Database created and schema loaded
 - [ ] `.env` file configured with correct credentials
-- [ ] AWS credentials have S3 permissions
+- [ ] AWS credentials have S3 read permissions
 - [ ] At least one bucket added to `s3_buckets` table
-- [ ] `DRY_RUN=true` for first run
+- [ ] Tool runs successfully and generates recommendations
 
 ## Troubleshooting
 
@@ -142,25 +162,37 @@ npm install
 
 After successful setup:
 
-1. **Schedule Regular Runs**: Set up a cron job or scheduled task
+1. **Schedule Regular Analysis**: Set up a cron job or scheduled task
    ```bash
-   # Example cron: Run daily at 2 AM
-   0 2 * * * cd /home/shivam/cfx/s3-rightsizeing && npm start >> logs/rightsizing.log 2>&1
+   # Example cron: Run weekly on Monday at 2 AM
+   0 2 * * 1 cd /home/shivam/POC-s/s3-rightsizeing && npm start >> logs/recommendations.log 2>&1
    ```
 
-2. **Monitor Savings**: Query the database regularly
+2. **Track Savings Potential**: Query the database regularly
    ```sql
    SELECT 
-     SUM(estimated_monthly_savings) as total_monthly_savings,
-     SUM(successful_transitions) as total_transitions
-   FROM rightsizing_operations;
+     bucket_name,
+     estimated_monthly_savings,
+     estimated_annual_savings,
+     recommendation_timestamp
+   FROM savings_recommendations 
+   ORDER BY recommendation_timestamp DESC, estimated_monthly_savings DESC
+   LIMIT 10;
    ```
 
-3. **Review and Optimize**: Adjust thresholds in `.env` based on results
+3. **Review and Optimize**: Adjust thresholds in `.env` based on your needs
 
-4. **Set Up Alerts**: Create notifications for failed operations
+4. **Implement Recommendations**: Manually apply lifecycle policies in AWS Console
+   - Start with buckets showing highest savings potential
+   - Test policies on smaller buckets first
+   - Monitor costs after implementation
 
-5. **Implement Lifecycle Policies**: Apply the generated policies to automate future right-sizing
+5. **Track Actual Savings**: After implementing recommendations
+   - Monitor AWS Cost Explorer
+   - Compare with recommendation predictions
+   - Adjust policies as needed
+
+6. **Re-run Periodically**: Generate new recommendations monthly to catch new optimization opportunities
 
 ## Support
 
