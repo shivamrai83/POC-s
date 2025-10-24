@@ -13,8 +13,9 @@
   "description": "S3 bucket right-sizing tool that analyzes and optimizes storage classes",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.540.0",
-    "pg": "^8.11.3",
-    "dotenv": "^16.4.5"
+    "@aws-sdk/credential-providers": "^3.540.0",
+    "dotenv": "^16.4.5",
+    "pg": "^8.11.3"
   },
   "devDependencies": {
     "@types/node": "^20.11.30",

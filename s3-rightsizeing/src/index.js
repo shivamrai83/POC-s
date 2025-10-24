@@ -26,7 +26,7 @@ async function main() {
     // Configuration
     const config = {
       sizeThresholdGB: parseInt(process.env.SIZE_THRESHOLD_GB || '100'),
-      maxBucketsToProcess: parseInt(process.env.MAX_BUCKETS_TO_PROCESS || '10'),
+      maxBucketsToProcess: parseInt(process.env.MAX_BUCKETS_TO_PROCESS || '1'),
       minSavingsThreshold: parseFloat(process.env.MIN_SAVINGS_THRESHOLD || '1.0'),
     };
 
@@ -61,7 +61,7 @@ async function main() {
     console.log('\nTop 5 largest buckets:');
     largeBuckets.slice(0, 5).forEach((bucket, index) => {
       const sizeGB = (bucket.total_size_bytes / (1024 ** 3)).toFixed(2);
-      console.log(`  ${index + 1}. ${bucket.bucket_name}: ${sizeGB} GB`);
+      console.log(`  ${index + 1}. ${bucket.bucket_name}: ${sizeGB} GB (${bucket.Region})`);
     });
     console.log();
 
@@ -84,9 +84,9 @@ async function main() {
       try {
         // Analyze bucket
         console.log('  → Analyzing bucket objects and storage patterns...');
-        const analysis = await analyzeBucket(bucket.bucket_name);
+        const analysis = await analyzeBucket(bucket.bucket_name, bucket.region);
 
-        // Update bucket info in database
+        // Update bucket info in database (only size for now)
         await updateBucketInfo(bucket.bucket_name, {
           totalSizeBytes: analysis.totalSize,
           objectCount: analysis.totalObjects,
@@ -230,6 +230,22 @@ async function main() {
 
   } catch (error) {
     console.error('Fatal error:', error);
+    
+    // Check if it's an AWS credentials error
+    if (error.message && (error.message.includes('credentials') || error.message.includes('InvalidAccessKeyId'))) {
+      console.log('\n🔐 AWS CREDENTIALS REQUIRED');
+      console.log('─'.repeat(50));
+      console.log('The tool needs AWS credentials to access your S3 buckets.');
+      console.log('Please see AWS_CREDENTIALS_SETUP.md for setup instructions.');
+      console.log('\nQuick setup options:');
+      console.log('1. Set environment variables:');
+      console.log('   export AWS_ACCESS_KEY_ID="your_key"');
+      console.log('   export AWS_SECRET_ACCESS_KEY="your_secret"');
+      console.log('2. Or create ~/.aws/credentials file');
+      console.log('3. Or use IAM roles if running on AWS infrastructure');
+      console.log('\nRun: node test-aws-credentials.js to test your setup');
+    }
+    
     process.exit(1);
   } finally {
     // Clean up database connection

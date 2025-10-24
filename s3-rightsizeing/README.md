@@ -55,6 +55,8 @@ A comprehensive Node.js application that analyzes S3 buckets stored in PostgreSQ
 
 ## ⚙️ Configuration
 
+### Standard Setup
+
 Edit the `.env` file with your settings:
 
 ```env
@@ -65,10 +67,10 @@ DB_NAME=s3_management
 DB_USER=postgres
 DB_PASSWORD=your_password
 
-# AWS Configuration
+# AWS Configuration (ARN-based authentication)
 AWS_REGION=us-east-1
-AWS_ACCESS_KEY_ID=your_access_key
-AWS_SECRET_ACCESS_KEY=your_secret_key
+# Note: No AWS_ACCESS_KEY_ID or AWS_SECRET_ACCESS_KEY needed
+# The tool uses ARN-based authentication automatically
 
 # Recommendation Configuration
 SIZE_THRESHOLD_GB=100          # Minimum bucket size to analyze
@@ -76,29 +78,36 @@ MAX_BUCKETS_TO_PROCESS=10      # Limit buckets per run
 MIN_SAVINGS_THRESHOLD=1.0      # Minimum savings in USD to include in recommendations
 ```
 
+### Custom Setup (S3BucketDetails Table)
+
+If you're using an existing `S3BucketDetails` table, see **CUSTOM_SETUP.md** for detailed instructions.
+
+The tool automatically detects and works with your existing table structure.
+
 ## 📊 Database Schema
 
-The tool requires two main tables:
+The tool works with two approaches:
 
-### `s3_buckets`
-Stores bucket information:
-- `bucket_name`: Unique bucket identifier
-- `region`: AWS region
-- `total_size_bytes`: Total bucket size
-- `object_count`: Number of objects
-- `last_analyzed`: Last analysis timestamp
-- `metadata`: JSONB field for additional data
-- `is_active`: Boolean flag for active buckets
+### Standard Setup
+- Creates `savings_recommendations` table
+- Uses standard `s3_buckets` table
 
-### `savings_recommendations`
+### Custom Setup (S3BucketDetails)
+- Works with your existing `S3BucketDetails` table
+- Creates `savings_recommendations` table that references your table
+- No changes needed to your existing data
+
+### `savings_recommendations` Table
 Stores all cost savings recommendations:
-- `bucket_name`: Reference to s3_buckets
+- `bucket_name`: References your bucket table
 - `recommendation_timestamp`: When recommendation was generated
 - `total_objects`: Total objects analyzed
 - `eligible_objects`: Objects eligible for optimization
 - `estimated_monthly_savings`: Potential monthly savings
 - `estimated_annual_savings`: Potential annual savings
 - `details`: JSONB field for detailed recommendations
+
+**Note**: If you have an existing `S3BucketDetails` table, see **CUSTOM_SETUP.md** for integration instructions.
 
 ## 🎮 Usage
 

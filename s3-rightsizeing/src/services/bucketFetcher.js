@@ -8,20 +8,30 @@ export async function fetchBucketsFromDB() {
   try {
     const result = await query(
       `SELECT 
-        id,
-        bucket_name,
-        region,
-        created_at,
-        last_analyzed,
-        total_size_bytes,
-        object_count,
-        metadata
-      FROM s3_buckets 
-      WHERE is_active = true
-      ORDER BY total_size_bytes DESC NULLS LAST`
+        "Id",
+        "StorageName" as bucket_name,
+        "StorageOwner",
+        "CreatedOn",
+        "Region" as region,
+        "IsActive",
+        "IsDisabled",
+        "createdAt",
+        "updatedAt",
+        "Size" as total_size_bytes,
+        "AccountId",
+        "Unit",
+        "PricePerHour",
+        "CurrencyCode",
+        "StoragePricePerMonth",
+        "CreatedBy",
+        "UpdatedBy",
+        "IpAddress"
+      FROM public."S3BucketDetails" 
+      WHERE "IsActive" = 1 AND "IsDisabled" = 0 AND "AccountId" = '425964170654' 
+      ORDER BY "Size" DESC NULLS LAST`
     );
 
-    console.log(`Fetched ${result.rows.length} active buckets from database`);
+    console.log(`Fetched ${result.rows.length} active buckets from S3BucketDetails`);
     return result.rows;
   } catch (error) {
     console.error('Error fetching buckets from database:', error);
@@ -40,18 +50,29 @@ export async function fetchLargeBuckets(sizeThresholdGB = 100) {
   try {
     const result = await query(
       `SELECT 
-        id,
-        bucket_name,
-        region,
-        created_at,
-        last_analyzed,
-        total_size_bytes,
-        object_count,
-        metadata
-      FROM s3_buckets 
-      WHERE is_active = true 
-        AND total_size_bytes > $1
-      ORDER BY total_size_bytes DESC`,
+        "Id",
+        "StorageName" as bucket_name,
+        "StorageOwner",
+        "CreatedOn",
+        "Region" as region,
+        "IsActive",
+        "IsDisabled",
+        "createdAt",
+        "updatedAt",
+        "Size" as total_size_bytes,
+        "AccountId",
+        "Unit",
+        "PricePerHour",
+        "CurrencyCode",
+        "StoragePricePerMonth",
+        "CreatedBy",
+        "UpdatedBy",
+        "IpAddress"
+      FROM public."S3BucketDetails" 
+      WHERE "IsActive" = 1 
+        AND "IsDisabled" = 0
+        AND "Size" > $1
+      ORDER BY "Size" DESC`,
       [sizeThresholdBytes]
     );
 
@@ -73,20 +94,24 @@ export async function updateBucketInfo(bucketName, data) {
   const { totalSizeBytes, objectCount, lastAnalyzed, metadata } = data;
 
   try {
+    // For now, we'll just log the update since we don't want to modify your S3BucketDetails table
+    console.log(`Would update bucket ${bucketName} with size: ${totalSizeBytes} bytes`);
+    
+    // If you want to actually update the Size field, uncomment the query below:
+    /*
     const result = await query(
-      `UPDATE s3_buckets 
+      `UPDATE public."S3BucketDetails" 
       SET 
-        total_size_bytes = COALESCE($1, total_size_bytes),
-        object_count = COALESCE($2, object_count),
-        last_analyzed = COALESCE($3, last_analyzed),
-        metadata = COALESCE($4, metadata),
-        updated_at = NOW()
-      WHERE bucket_name = $5
+        "Size" = COALESCE($1, "Size"),
+        "updatedAt" = NOW()
+      WHERE "StorageName" = $2
       RETURNING *`,
-      [totalSizeBytes, objectCount, lastAnalyzed, metadata, bucketName]
+      [totalSizeBytes, bucketName]
     );
-
     return result.rows[0];
+    */
+    
+    return null; // Return null since we're not updating
   } catch (error) {
     console.error(`Error updating bucket ${bucketName}:`, error);
     throw error;
@@ -101,7 +126,7 @@ export async function updateBucketInfo(bucketName, data) {
 export async function getBucketByName(bucketName) {
   try {
     const result = await query(
-      'SELECT * FROM s3_buckets WHERE bucket_name = $1',
+      'SELECT * FROM public."S3BucketDetails" WHERE "StorageName" = $1',
       [bucketName]
     );
 

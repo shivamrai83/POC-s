@@ -14,9 +14,20 @@ const pool = new Pool({
   password: process.env.DB_PASSWORD,
   max: 20, // Maximum number of clients in the pool
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
+  connectionTimeoutMillis: 10000, // Increased from 2000 to 10000 (10 seconds)
+  acquireTimeoutMillis: 10000, // Time to wait for a connection from the pool
+  createTimeoutMillis: 10000, // Time to wait for connection creation
 });
-
+console.log('db config', {
+  host: process.env.DB_HOST || 'localhost',
+  port: process.env.DB_PORT || 5432,
+  database: process.env.DB_NAME || 'postgres',
+  user: process.env.DB_USER || 'postgres',
+  password: process.env.DB_PASSWORD,
+  max: 20, // Maximum number of clients in the pool
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 2000,
+})
 // Test connection on startup
 pool.on('connect', () => {
   console.log('Connected to PostgreSQL database');
@@ -24,7 +35,36 @@ pool.on('connect', () => {
 
 pool.on('error', (err) => {
   console.error('Unexpected error on idle client', err);
-  process.exit(-1);
+  // Don't exit immediately, let the application handle it
+});
+
+// Test initial connection
+async function testConnection() {
+  try {
+    const client = await pool.connect();
+    console.log('✅ Database connection test successful');
+    client.release();
+  } catch (error) {
+    console.error('❌ Database connection test failed:', error.message);
+    console.log('\n🔧 DATABASE CONNECTION TROUBLESHOOTING');
+    console.log('─'.repeat(50));
+    console.log('1. Check if the database server is running');
+    console.log('2. Verify network connectivity to:', process.env.DB_HOST || 'localhost');
+    console.log('3. Check firewall settings');
+    console.log('4. Verify database credentials');
+    console.log('5. Check if the database exists:', process.env.DB_NAME || 'postgres');
+    console.log('\nCurrent connection config:');
+    console.log(`  Host: ${process.env.DB_HOST || 'localhost'}`);
+    console.log(`  Port: ${process.env.DB_PORT || 5432}`);
+    console.log(`  Database: ${process.env.DB_NAME || 'postgres'}`);
+    console.log(`  User: ${process.env.DB_USER || 'postgres'}`);
+    throw error;
+  }
+}
+
+// Test connection on startup
+testConnection().catch(() => {
+  console.log('Database connection failed, but continuing...');
 });
 
 /**

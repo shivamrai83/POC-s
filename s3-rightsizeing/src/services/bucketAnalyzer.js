@@ -1,58 +1,17 @@
 import { listAllObjects } from '../config/aws.js';
 
 /**
- * Storage class recommendations based on object age and access patterns
- */
-const STORAGE_CLASS_RULES = {
-  STANDARD: {
-    name: 'STANDARD',
-    description: 'Frequently accessed data',
-    minDays: 0,
-    maxDays: 30,
-  },
-  STANDARD_IA: {
-    name: 'STANDARD_IA',
-    description: 'Infrequently accessed data',
-    minDays: 30,
-    maxDays: 90,
-  },
-  INTELLIGENT_TIERING: {
-    name: 'INTELLIGENT_TIERING',
-    description: 'Unknown or changing access patterns',
-    minDays: 0,
-    maxDays: Infinity,
-  },
-  GLACIER_IR: {
-    name: 'GLACIER_IR',
-    description: 'Archive data with instant retrieval',
-    minDays: 90,
-    maxDays: 180,
-  },
-  GLACIER: {
-    name: 'GLACIER',
-    description: 'Long-term archive',
-    minDays: 180,
-    maxDays: 365,
-  },
-  DEEP_ARCHIVE: {
-    name: 'DEEP_ARCHIVE',
-    description: 'Long-term archive with rare access',
-    minDays: 365,
-    maxDays: Infinity,
-  },
-};
-
-/**
  * Analyze a bucket and categorize its objects
  * @param {string} bucketName - Name of the S3 bucket
+ * @param {string} region - AWS region of the bucket
  * @returns {Promise<object>} Analysis results
  */
-export async function analyzeBucket(bucketName) {
-  console.log(`Starting analysis for bucket: ${bucketName}`);
+export async function analyzeBucket(bucketName, region = 'us-east-1') {
+  console.log(`Starting analysis for bucket: ${bucketName} (region: ${region})`);
   
   try {
-    const objects = await listAllObjects(bucketName);
-    
+    const objects = await listAllObjects(bucketName, region); //breaking here
+    console.log('Objects:allobjects', objects);
     if (!objects || objects.length === 0) {
       console.log(`Bucket ${bucketName} is empty`);
       return {
