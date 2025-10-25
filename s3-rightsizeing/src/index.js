@@ -45,6 +45,8 @@ async function main() {
 
     console.log(`Found ${allBuckets.length} active buckets`);
     console.log();
+    console.log('allBuckets', allBuckets);
+    console.log();
 
     // Step 2: Identify large buckets
     console.log(`Step 2: Identifying buckets larger than ${config.sizeThresholdGB}GB...`);
@@ -61,7 +63,7 @@ async function main() {
     console.log('\nTop 5 largest buckets:');
     largeBuckets.slice(0, 5).forEach((bucket, index) => {
       const sizeGB = (bucket.total_size_bytes / (1024 ** 3)).toFixed(2);
-      console.log(`  ${index + 1}. ${bucket.bucket_name}: ${sizeGB} GB (${bucket.Region})`);
+      console.log(`  ${index + 1}. ${bucket.bucket_name}: ${sizeGB} GB (${bucket.region})`);
     });
     console.log();
 
