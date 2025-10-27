@@ -89,15 +89,16 @@ async function main() {
         const analysis = await analyzeBucket(bucket.bucket_name, bucket.region);
 
         // Update bucket info in database (only size for now)
-        await updateBucketInfo(bucket.bucket_name, {
-          totalSizeBytes: analysis.totalSize,
-          objectCount: analysis.totalObjects,
-          lastAnalyzed: new Date(),
-          metadata: {
-            storageClassDistribution: analysis.storageClassDistribution,
-            ageDistribution: analysis.ageDistribution,
-          },
-        });
+        // not required for now
+        // await updateBucketInfo(bucket.bucket_name, {
+        //   totalSizeBytes: analysis.totalSize,
+        //   objectCount: analysis.totalObjects,
+        //   lastAnalyzed: new Date(),
+        //   metadata: {
+        //     storageClassDistribution: analysis.storageClassDistribution,
+        //     ageDistribution: analysis.ageDistribution,
+        //   },
+        // });
 
         if (analysis.isEmpty) {
           console.log('  → Bucket is empty, skipping...');
