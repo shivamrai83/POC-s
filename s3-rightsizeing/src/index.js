@@ -87,7 +87,7 @@ async function main() {
         // Analyze bucket
         console.log('  → Analyzing bucket objects and storage patterns...');
         const analysis = await analyzeBucket(bucket.bucket_name, bucket.region);
-
+        console.log('  → Analysis complete.', analysis);
         // Update bucket info in database (only size for now)
         // not required for now
         // await updateBucketInfo(bucket.bucket_name, {

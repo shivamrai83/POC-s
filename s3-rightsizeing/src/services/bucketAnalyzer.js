@@ -8,7 +8,17 @@ import { listAllObjects } from '../config/aws.js';
  */
 export async function analyzeBucket(bucketName, region = 'us-east-1') {
   console.log(`Starting analysis for bucket: ${bucketName} (region: ${region})`);
-  
+  // const dummy = [
+  //   {
+  //     Key: 'debug/929aeb2d-4038-4930-91b5-d2ad1b42400d.json',
+  //     LastModified: 2025 -08-01T08: 33:02.000Z,
+  //     ETag: '"bb7632dc5c1764afcd43bc7a78d2f79d"',
+  //     ChecksumAlgorithm: ['CRC64NVME'],
+  //     ChecksumType: 'FULL_OBJECT',
+  //     Size: 495,
+  //     StorageClass: 'STANDARD'
+  //   }
+  // ]
   try {
     const objects = await listAllObjects(bucketName, region); //breaking here
     console.log('Objects:allobjects', objects);
@@ -40,8 +50,8 @@ export async function analyzeBucket(bucketName, region = 'us-east-1') {
       analysis.totalSize += sizeBytes;
 
       // Track current storage class distribution
-      const currentStorageClass = obj.StorageClass || 'STANDARD';
-      analysis.storageClassDistribution[currentStorageClass] = 
+      const currentStorageClass = obj.StorageClass || 'NA';
+      analysis.storageClassDistribution[currentStorageClass] =
         (analysis.storageClassDistribution[currentStorageClass] || 0) + 1;
 
       // Calculate object age in days
@@ -50,12 +60,12 @@ export async function analyzeBucket(bucketName, region = 'us-east-1') {
 
       // Track age distribution
       const ageCategory = getAgeCategory(ageInDays);
-      analysis.ageDistribution[ageCategory] = 
+      analysis.ageDistribution[ageCategory] =
         (analysis.ageDistribution[ageCategory] || 0) + 1;
 
       // Check if object needs right-sizing
       const recommendedClass = recommendStorageClass(ageInDays, currentStorageClass, sizeBytes);
-      
+      console.log('currentStorageClass, recommendedClass', currentStorageClass, recommendedClass);
       if (recommendedClass !== currentStorageClass) {
         analysis.objectsNeedingRightSizing.push({
           key: obj.Key,
@@ -116,16 +126,16 @@ function recommendStorageClass(ageInDays, currentClass, sizeBytes) {
 
   // Recommend based on age
   if (ageInDays >= 365) {
-    return 'DEEP_ARCHIVE';
+    return 'DEEP_ARCHIVE'; //GET $0.0004 per GB POST $0.05 per GB
   } else if (ageInDays >= 180) {
-    return 'GLACIER';
+    return 'GLACIER'; //GET $0.0004 per GB POST $0.03 per GB
   } else if (ageInDays >= 90) {
-    return 'GLACIER_IR';
+    return 'GLACIER_IR'; //GET $0.01 per GB POST $0.02 per GB
   } else if (ageInDays >= 30) {
-    return 'STANDARD_IA';
+    return 'STANDARD_IA'; //GET $0.001 per GB POST $0.01 per GB
   }
 
-  return 'STANDARD';
+  return 'STANDARD'; //GET $0.0004 per GB POST $0.005 per GB
 }
 
 /**
@@ -202,13 +212,13 @@ function generateRecommendations(analysis) {
  */
 export function identifyLargeBuckets(buckets, thresholdGB = 100) {
   const thresholdBytes = thresholdGB * 1024 * 1024 * 1024;
-  
+
   const largeBuckets = buckets.filter(
     bucket => bucket.total_size_bytes && bucket.total_size_bytes > thresholdBytes
   );
 
   console.log(`Identified ${largeBuckets.length} buckets larger than ${thresholdGB}GB`);
-  
+
   return largeBuckets.sort((a, b) => b.total_size_bytes - a.total_size_bytes);
 }
 
