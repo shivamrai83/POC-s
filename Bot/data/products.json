@@ -1,0 +1,20 @@
+[
+  {
+    "id": "1",
+    "category": "shirt",
+    "subcategory": "designer wear new",
+    "size": "xxl",
+    "title": "White Gold & Silver Designer Shirt - XXL",
+    "price": "₹1495",
+    "image": "https://yourcdn.com/ilyzly/shirt1.jpg"
+  },
+  {
+    "id": "2",
+    "category": "shirt",
+    "subcategory": "designer wear new",
+    "size": "xxl",
+    "title": "White Front Panel Designer Shirt - XXL",
+    "price": "₹1495",
+    "image": "https://yourcdn.com/ilyzly/shirt2.jpg"
+  }
+]
