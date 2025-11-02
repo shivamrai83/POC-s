@@ -2,7 +2,10 @@ import axios from "axios";
 import dotenv from "dotenv";
 dotenv.config();
 
-const META_API_URL = "https://graph.facebook.com/v17.0/me/messages";
+// For Instagram: use Instagram Business Account ID
+// For Facebook Messenger: use "me" (requires Page ID in token)
+const INSTAGRAM_BUSINESS_ACCOUNT_ID = process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID || "me";
+const META_API_URL = `https://graph.facebook.com/v17.0/${INSTAGRAM_BUSINESS_ACCOUNT_ID}/messages`;
 
 export const sendMessage = async (recipientId, message) => {
   try {
