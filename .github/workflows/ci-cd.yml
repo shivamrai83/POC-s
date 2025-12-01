@@ -14,7 +14,7 @@ jobs:
     
     defaults:
       run:
-        working-directory: ./backend
+        working-directory: ./CI-CD/backend
     
     steps:
       - name: Checkout code
@@ -25,7 +25,7 @@ jobs:
         with:
           node-version: '18'
           cache: 'npm'
-          cache-dependency-path: backend/package-lock.json
+          cache-dependency-path: CI-CD/backend/package-lock.json
       
       - name: Install dependencies
         run: npm ci
@@ -44,7 +44,7 @@ jobs:
     
     defaults:
       run:
-        working-directory: ./frontend
+        working-directory: ./CI-CD/frontend
     
     steps:
       - name: Checkout code
@@ -55,7 +55,7 @@ jobs:
         with:
           node-version: '18'
           cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
+          cache-dependency-path: CI-CD/frontend/package-lock.json
       
       - name: Install dependencies
         run: npm ci
