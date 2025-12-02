@@ -1,0 +1,43 @@
+
+export const regions = [
+  'ap-northeast-1',
+  'ap-northeast-2',
+  'ap-northeast-3',
+  'ap-south-1',
+  'ap-southeast-1',
+  'ap-southeast-2',
+  'ca-central-1',
+  'eu-central-1',
+  'eu-north-1',
+  'eu-west-1',
+  'eu-west-2',
+  'eu-west-3',
+  'sa-east-1',
+  'us-east-1',
+  'us-east-2',
+  'us-west-1',
+  'us-west-2',
+];
+
+export const INSTANCE_TYPE = {
+  EC2: 'EC2',
+  S3: 'S3',
+  RDS: 'RDS',
+  ELB: 'ELB',
+  EFS: 'EFS',
+  FSx: 'FSx',
+  REDSHIFT: 'REDSHIFT',
+  LAMBDA: 'LAMBDA',
+  EBS: 'EBS',
+  ECS: 'ECS',
+  FARGATE: 'FARGATE',
+  EMR: 'EMR',
+  KINESIS: 'KINESIS',
+  ELASTICSEARCH: 'ELASTICSEARCH',
+  CLOUDWATCH: 'CLOUDWATCH',
+  SNS: 'SNS',
+  SQS: 'SQS',
+  API_GATEWAY: 'API_GATEWAY',
+  GLUE: 'GLUE',
+  SAGEMAKER: 'SAGEMAKER'
+} as const;

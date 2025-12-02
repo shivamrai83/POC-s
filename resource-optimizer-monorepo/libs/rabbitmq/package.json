@@ -1,0 +1,12 @@
+{
+  "name": "@libs/rabbitmq",
+  "version": "0.0.1",
+  "description": "RabbitMQ utilities and configuration for CFX project",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

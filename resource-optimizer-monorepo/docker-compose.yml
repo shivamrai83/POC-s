@@ -1,0 +1,48 @@
+version: "3.8"
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - backend
+
+  invoice:
+    build:
+      context: .
+      dockerfile: ./apps/invoice/Dockerfile
+    container_name: invoice
+    env_file:
+      - .env
+    depends_on:
+      - rabbitmq
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - backend
+    ports:
+      - "3001:3001"
+
+  scheduler:
+    build:
+      context: .
+      dockerfile: ./apps/scheduler/Dockerfile
+    container_name: scheduler
+    env_file:
+      - .env
+    depends_on:
+      - rabbitmq
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - backend
+    ports:
+      - "3000:3000"
+
+networks:
+  backend:
+    driver: bridge

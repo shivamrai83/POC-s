@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "apps/aws-ir-module/src",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "webpack": false,
+    "tsConfigPath": "apps/aws-ir-module/tsconfig.app.json"
+  },
+  "monorepo": true,
+  "root": "apps/aws-ir-module",
+  "projects": {
+    "aws-ir-module": {
+      "type": "application",
+      "root": "apps/aws-ir-module",
+      "entryFile": "main",
+      "sourceRoot": "apps/aws-ir-module/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/aws-ir-module/tsconfig.app.json"
+      }
+    },
+    "publisher": {
+      "type": "application",
+      "root": "apps/publisher",
+      "entryFile": "main",
+      "sourceRoot": "apps/publisher/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/publisher/tsconfig.app.json"
+      }
+    },
+    "database": {
+      "type": "library",
+      "root": "libs/database",
+      "entryFile": "index",
+      "sourceRoot": "libs/database/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/database/tsconfig.lib.json"
+      }
+    },
+    "entities": {
+      "type": "library",
+      "root": "libs/entities",
+      "entryFile": "index",
+      "sourceRoot": "libs/entities/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/entities/tsconfig.lib.json"
+      }
+    },
+    "helpers": {
+      "type": "library",
+      "root": "libs/helpers",
+      "entryFile": "constant",
+      "sourceRoot": "libs/helpers/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/helpers/tsconfig.lib.json"
+      }
+    },
+    "aws-clients": {
+      "type": "library",
+      "root": "libs/aws-clients",
+      "entryFile": "aws-service",
+      "sourceRoot": "libs/aws-clients/src"
+    },
+    "rabbitmq": {
+      "type": "library",
+      "root": "libs/rabbitmq",
+      "entryFile": "index",
+      "sourceRoot": "libs/rabbitmq/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/rabbitmq/tsconfig.lib.json"
+      }
+    }
+  }
+}

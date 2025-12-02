@@ -1,0 +1,93 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "es2017",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "incremental": true,
+    "skipLibCheck": true,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "strictBindCallApply": false,
+    "forceConsistentCasingInFileNames": false,
+    "noFallthroughCasesInSwitch": false,
+    "types": [
+      "node",
+      "jest"
+    ],
+    "paths": {
+      "@app/*": [
+        "apps/*/src"
+      ],
+      "@libs/*": [
+        "libs/*/src"
+      ],
+      "@libs/helpers": [
+        "libs/helpers/src"
+      ],
+      "@libs/helpers/*": [
+        "libs/helpers/src/*"
+      ],
+      "@libs/notification": [
+        "libs/notification/src"
+      ],
+      "@libs/notification/*": [
+        "libs/notification/src/*"
+      ],
+      "@libs/database": [
+        "libs/database/src"
+      ],
+      "@libs/database/*": [
+        "libs/database/src/*"
+      ],
+      "@libs/services": [
+        "libs/helpers/src"
+      ],
+      "@libs/services/*": [
+        "libs/helpers/src/*"
+      ],
+      "@libs/entities": [
+        "libs/entities/src"
+      ],
+      "@libs/entities/*": [
+        "libs/entities/src/*"
+      ],
+      "@libs/repositories": [
+        "libs/repositories/src"
+      ],
+      "@libs/repositories/*": [
+        "libs/repositories/src/*"
+      ],
+      "@libs/aws-clients": [
+        "libs/aws-clients/src"
+      ],
+      "@libs/aws-clients/*": [
+        "libs/aws-clients/src/*"
+      ],
+      "@app/rabbitmq": [
+        "libs/rabbitmq/src"
+      ],
+      "@app/rabbitmq/*": [
+        "libs/rabbitmq/src/*"
+      ],
+      "@libs/common": [
+        "libs/common"
+      ],
+      "@libs/common/*": [
+        "libs/common/*"
+      ],
+      "libs/common": [
+        "libs/common"
+      ],
+      "libs/common/*": [
+        "libs/common/*"
+      ]
+    }
+  }
+}
