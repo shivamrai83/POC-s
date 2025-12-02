@@ -1,234 +1,370 @@
-## Nest GraphQL Server
+# POC-s: Proof of Concepts Collection
 
-A simple NestJS + GraphQL + Prisma server with a Movie domain. Uses Apollo Server 4, code-first GraphQL schema generation, and PostgreSQL (via Docker Compose).
-
-### Tech stack
-- **NestJS 11** with **@nestjs/graphql** and **Apollo Driver**
-- **GraphQL 16** (code-first using decorators)
-- **Prisma** ORM (PostgreSQL)
-- **Docker Compose** for local Postgres + pgAdmin
+A comprehensive collection of proof-of-concept projects demonstrating various cloud infrastructure, automation, and full-stack development capabilities. This repository contains multiple independent projects, each showcasing different technologies and use cases.
 
 ---
 
-## What is `@/movie` (the Movie module)?
-`@/movie` refers to the Movie feature located in `src/movie`. It encapsulates the GraphQL schema, resolver, and service for movies.
+## 📋 Table of Contents
 
-- `src/movie/movie.model.ts`:
-  - GraphQL object type `Movie` exposed in the schema
-  - Fields: `id`, `title` (nullable), `description` (nullable), `createdAt`, `updatedAt`, and a computed field `movieComment` (example data)
-- `src/movie/movie.input.ts`:
-  - GraphQL input types
-  - `MovieInputCreate` for creating a movie
-  - `MovieInputEdit` (currently used by the service only)
-- `src/movie/movie.resolver.ts`:
-  - GraphQL Resolver that exposes operations:
-    - `getAllMovies(): [Movie]`
-    - `getMovieById(id: Int!): Movie`
-    - `createMovie(movieInputCreate: MovieInputCreate!): Movie`
-    - `movieComment(movie: Movie): [String]` as a sample resolve field
-- `src/movie/movie.service.ts`:
-  - Business logic and Prisma calls (`findMany`, `findFirstOrThrow`, `create`, etc.)
-- `src/movie/movie.module.ts`:
-  - Wires the resolver and service together and is imported by `AppModule`
+- [Overview](#overview)
+- [Projects](#projects)
+- [Technology Stack](#technology-stack)
+- [Getting Started](#getting-started)
+- [Project Roadmap](#project-roadmap)
+- [Architecture Overview](#architecture-overview)
+- [Contributing](#contributing)
 
-Prisma model lives in `prisma/schema.prisma` and looks like:
-```prisma
-model Movie {
-  id          Int      @id @default(autoincrement())
-  createdAt   DateTime @default(now())
-  description String?  @default("")
-  updatedAt   DateTime @default(now())
-  title       String?
-  movieComment MovieComment[]
-}
+---
+
+## 🎯 Overview
+
+This repository contains five distinct proof-of-concept projects:
+
+1. **Bot** - Instagram Business messaging bot for e-commerce
+2. **CI-CD** - Full-stack Todo app with CI/CD pipeline
+3. **nest-graphql** - GraphQL API server with NestJS and Prisma
+4. **resource-optimizer-monorepo** - AWS resource optimization service (monorepo)
+5. **s3-rightsizeing** - S3 storage cost optimization tool
+
+Each project is self-contained and can be run independently.
+
+---
+
+## 📦 Projects
+
+### 1. 🤖 Bot - Instagram E-commerce Bot
+
+**Location**: `/Bot`  
+**Type**: Node.js/Express Webhook Server  
+**Purpose**: Instagram Business messaging bot for product catalog browsing and order management
+
+**Key Features**:
+- Instagram Business API integration
+- Product catalog management
+- Order tracking
+- Interactive messaging with quick replies
+- Retail store locator
+
+**Tech Stack**: Express.js, Meta Graph API, Node.js ES Modules
+
+**Quick Start**: See [Bot/README.md](./Bot/README.md)
+
+---
+
+### 2. 🚀 CI-CD - Todo App with CI/CD
+
+**Location**: `/CI-CD`  
+**Type**: Full-Stack Application  
+**Purpose**: Demonstrates modern CI/CD practices with React frontend and Express backend
+
+**Key Features**:
+- React frontend with modern UI
+- Express.js REST API backend
+- SQLite database
+- GitHub Actions CI/CD pipeline
+- Render.com deployment configuration
+- Automated testing and deployment
+
+**Tech Stack**: React, Express.js, SQLite, GitHub Actions, Render.com
+
+**Quick Start**: See [CI-CD/README.md](./CI-CD/README.md)
+
+---
+
+### 3. 🎬 nest-graphql - GraphQL Movie API
+
+**Location**: `/nest-graphql`  
+**Type**: GraphQL API Server  
+**Purpose**: Code-first GraphQL API using NestJS and Prisma
+
+**Key Features**:
+- Apollo Server 4 integration
+- Code-first GraphQL schema
+- Prisma ORM with PostgreSQL
+- Movie domain with CRUD operations
+- Docker Compose setup for database
+
+**Tech Stack**: NestJS, GraphQL, Prisma, PostgreSQL, Apollo Server
+
+**Quick Start**: See [nest-graphql/README.md](./nest-graphql/README.md)
+
+---
+
+### 4. ☁️ resource-optimizer-monorepo - AWS IR Module
+
+**Location**: `/resource-optimizer-monorepo`  
+**Type**: NestJS Monorepo  
+**Purpose**: AWS infrastructure resource optimization and idle resource detection
+
+**Key Features**:
+- EC2 idle instance detection (stopped/low CPU)
+- ECS, RDS, S3 resource analysis modules
+- CloudWatch metrics integration
+- PostgreSQL database for resource tracking
+- Modular monorepo architecture
+- RESTful API endpoints
+
+**Tech Stack**: NestJS, TypeORM, AWS SDK, PostgreSQL, TypeScript
+
+**Quick Start**: See [resource-optimizer-monorepo/README.md](./resource-optimizer-monorepo/README.md)
+
+---
+
+### 5. 💰 s3-rightsizeing - S3 Cost Optimizer
+
+**Location**: `/s3-rightsizeing`  
+**Type**: Node.js CLI Tool  
+**Purpose**: Analyzes S3 buckets and recommends storage class transitions for cost savings
+
+**Key Features**:
+- PostgreSQL database integration
+- S3 bucket analysis and recommendations
+- Storage class transition suggestions
+- Cost savings calculations
+- Lifecycle policy recommendations
+- Read-only analysis (no changes made)
+
+**Tech Stack**: Node.js, PostgreSQL, AWS SDK (S3), SQL
+
+**Quick Start**: See [s3-rightsizeing/README.md](./s3-rightsizeing/README.md)
+
+---
+
+## 🛠 Technology Stack
+
+### Backend Technologies
+- **Node.js** - Runtime environment
+- **NestJS** - Enterprise Node.js framework
+- **Express.js** - Web framework
+- **TypeScript** - Type-safe JavaScript
+- **GraphQL** - Query language for APIs
+- **Prisma** - Next-generation ORM
+
+### Frontend Technologies
+- **React** - UI library
+- **Modern CSS** - Styling
+
+### Databases
+- **PostgreSQL** - Relational database
+- **SQLite** - Lightweight database
+
+### Cloud & Infrastructure
+- **AWS SDK** - AWS service integration
+- **Docker Compose** - Container orchestration
+- **GitHub Actions** - CI/CD automation
+- **Render.com** - Cloud hosting platform
+
+### APIs & Integrations
+- **Meta Graph API** - Instagram/Facebook integration
+- **AWS CloudWatch** - Metrics and monitoring
+- **AWS S3** - Object storage
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- **Node.js** 18+ and npm/yarn/pnpm
+- **PostgreSQL** 12+ (for projects using it)
+- **Docker** and Docker Compose (for nest-graphql)
+- **AWS Account** (for AWS-related projects)
+- **Meta Developer Account** (for Bot project)
+
+### Quick Setup
+
+Each project has its own setup instructions. Navigate to the project directory and follow the README:
+
+```bash
+# Bot
+cd Bot && npm install && npm start
+
+# CI-CD
+cd CI-CD/backend && npm install && npm start
+cd CI-CD/frontend && npm install && npm start
+
+# nest-graphql
+cd nest-graphql/server && yarn install && yarn start:dev
+
+# resource-optimizer-monorepo
+cd resource-optimizer-monorepo && pnpm install && pnpm start:dev
+
+# s3-rightsizeing
+cd s3-rightsizeing && npm install && npm start
 ```
 
 ---
 
-## Prerequisites
-- Node.js 18+ and Yarn
-- Docker + Docker Compose
+## 🗺 Project Roadmap
+
+### Phase 1: Core Infrastructure ✅
+- [x] Bot - Instagram messaging integration
+- [x] CI-CD - Full-stack app with deployment pipeline
+- [x] nest-graphql - GraphQL API foundation
+- [x] resource-optimizer-monorepo - AWS resource detection
+- [x] s3-rightsizeing - S3 cost optimization
+
+### Phase 2: Enhancement & Integration 🚧
+- [ ] Enhanced Bot features (payment integration, analytics)
+- [ ] CI-CD - Add authentication and user management
+- [ ] nest-graphql - Add subscriptions and real-time features
+- [ ] resource-optimizer-monorepo - Complete ECS, RDS, S3 modules
+- [ ] s3-rightsizeing - Automated lifecycle policy generation
+
+### Phase 3: Advanced Features 📋
+- [ ] Multi-account AWS support
+- [ ] Dashboard and visualization tools
+- [ ] Notification systems (email, Slack, Teams)
+- [ ] Cost analytics and reporting
+- [ ] Machine learning for resource prediction
+
+### Phase 4: Production Readiness 🎯
+- [ ] Comprehensive testing suites
+- [ ] Security hardening
+- [ ] Performance optimization
+- [ ] Documentation and API specs
+- [ ] Monitoring and alerting
 
 ---
 
-## Getting started
+## 🏗 Architecture Overview
 
-### 1) Install dependencies
-```bash
-yarn install
+### Project Structure
+
+```
+POC-s/
+├── Bot/                          # Instagram Bot
+│   ├── controllers/             # Message handlers
+│   ├── services/                # Meta API integration
+│   └── data/                    # Product catalog
+│
+├── CI-CD/                       # Todo App with CI/CD
+│   ├── backend/                # Express API
+│   ├── frontend/                # React app
+│   └── .github/                # GitHub Actions
+│
+├── nest-graphql/                # GraphQL Server
+│   ├── server/                 # NestJS server
+│   └── client/                 # React client (optional)
+│
+├── resource-optimizer-monorepo/ # AWS IR Module
+│   ├── apps/                   # Applications
+│   │   ├── aws-ir-module/     # Main service
+│   │   └── publisher/         # Publisher service
+│   └── libs/                   # Shared libraries
+│       ├── entities/          # Database entities
+│       ├── database/          # Database modules
+│       └── aws-clients/       # AWS SDK wrappers
+│
+└── s3-rightsizeing/            # S3 Optimizer
+    ├── src/                    # Source code
+    ├── database/               # Schema files
+    └── scripts/                # Utility scripts
 ```
 
-### 2) Start Postgres and pgAdmin
-```bash
-docker compose up -d
-```
-This starts Postgres on port `5433` and pgAdmin on `5555`. The Prisma datasource in `prisma/schema.prisma` already points to `postgresql://postgres:postgres@localhost:5433/graphql_example`.
+### Design Patterns
 
-### 3) Apply Prisma migrations and generate client
+- **Monorepo Architecture**: resource-optimizer-monorepo uses NestJS monorepo pattern
+- **Microservices**: Modular services with shared libraries
+- **RESTful APIs**: Standard REST endpoints
+- **GraphQL**: Code-first schema generation
+- **Event-Driven**: RabbitMQ integration (in monorepo)
+
+---
+
+## 📚 Documentation
+
+Each project contains detailed documentation:
+
+- **[Bot/README.md](./Bot/README.md)** - Instagram bot setup and usage
+- **[CI-CD/README.md](./CI-CD/README.md)** - Todo app and CI/CD guide
+- **[nest-graphql/README.md](./nest-graphql/README.md)** - GraphQL API documentation
+- **[resource-optimizer-monorepo/README.md](./resource-optimizer-monorepo/README.md)** - AWS IR module guide
+- **[s3-rightsizeing/README.md](./s3-rightsizeing/README.md)** - S3 optimization tool
+
+---
+
+## 🔧 Common Commands
+
+### Development
 ```bash
+# Install dependencies (project-specific)
+npm install / yarn install / pnpm install
+
+# Run development server
+npm start / yarn start:dev / pnpm start:dev
+
+# Run tests
+npm test / yarn test / pnpm test
+```
+
+### Database
+```bash
+# PostgreSQL (if using)
+psql -U postgres -d database_name
+
+# Prisma (nest-graphql)
+npx prisma migrate dev
 npx prisma generate
-npx prisma migrate deploy
 ```
 
-### 4) Seed sample data (optional but recommended)
+### Docker
 ```bash
-npx ts-node prisma/seeds.ts
-```
+# Start services
+docker compose up -d
 
-### 5) Run the server
-```bash
-yarn start:dev
-```
-You should see logs indicating the GraphQL route is mapped: `Mapped {/graphql, POST}`. The server listens on `http://localhost:3000`.
-
----
-
-## How to test on localhost:3000
-The GraphQL endpoint is available at `http://localhost:3000/graphql`.
-
-If you don’t see a browser IDE at that URL, that’s expected with Apollo Server 4 unless a landing page plugin is enabled. You can still test via any GraphQL client (Insomnia, Postman, Altair, Apollo Sandbox) or curl.
-
-### Option A: Use curl
-- List movies
-```bash
-curl -X POST http://localhost:3000/graphql \
-  -H 'content-type: application/json' \
-  -d '{
-    "query": "{ getAllMovies { id title description createdAt updatedAt movieComment } }"
-  }'
-```
-
-- Get a movie by id (e.g., 1)
-```bash
-curl -X POST http://localhost:3000/graphql \
-  -H 'content-type: application/json' \
-  -d '{
-    "query": "query($id: Int!) { getMovieById(id: $id) { id title description createdAt updatedAt movieComment } }",
-    "variables": { "id": 1 }
-  }'
-```
-
-- Create a movie
-```bash
-curl -X POST http://localhost:3000/graphql \
-  -H 'content-type: application/json' \
-  -d '{
-    "query": "mutation($input: MovieInputCreate!) { createMovie(movieInputCreate: $input) { id title description } }",
-    "variables": { "input": { "title": "Inception", "description": "Mind-bending sci-fi" } }
-  }'
-```
-
-### Option B: Use a GraphQL client
-Point your client to `http://localhost:3000/graphql` and use these sample operations:
-
-- Query all movies
-```graphql
-query {
-  getAllMovies {
-    id
-    title
-    description
-    createdAt
-    updatedAt
-    movieComment
-  }
-}
-```
-
-- Query by id
-```graphql
-query GetMovie($id: Int!) {
-  getMovieById(id: $id) {
-    id
-    title
-    description
-    createdAt
-    updatedAt
-    movieComment
-  }
-}
-```
-
-- Create a movie
-```graphql
-mutation CreateMovie($input: MovieInputCreate!) {
-  createMovie(movieInputCreate: $input) {
-    id
-    title
-    description
-  }
-}
-```
-
-- Variables example
-```json
-{
-  "id": 1,
-  "input": {
-    "title": "Inception",
-    "description": "Mind-bending sci-fi"
-  }
-}
+# Stop services
+docker compose down
 ```
 
 ---
 
-## Enabling a browser IDE (optional)
-If you want a built-in IDE at `GET /graphql`, enable Apollo’s local landing page plugin in `AppModule`:
-```ts
-import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { GraphQLModule } from '@nestjs/graphql';
-import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
+## 🤝 Contributing
 
-GraphQLModule.forRoot<ApolloDriverConfig>({
-  driver: ApolloDriver,
-  autoSchemaFile: true,
-  plugins: [ApolloServerPluginLandingPageLocalDefault()],
-});
-```
-Restart the server and open `http://localhost:3000/graphql` in the browser.
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ---
 
-## Project scripts
-```bash
-# build
-yarn build
+## 📝 License
 
-# dev
-yarn start:dev
-
-# lint
-yarn lint
-
-# tests
-yarn test
-```
+Each project may have its own license. Check individual project directories for license information.
 
 ---
 
-## Folder structure (high-level)
-```
-src/
-  app.module.ts
-  main.ts
-  movie/
-    movie.model.ts
-    movie.input.ts
-    movie.resolver.ts
-    movie.service.ts
-    movie.module.ts
-prisma/
-  schema.prisma
-  migrations/
-  seeds.ts
-```
+## 🆘 Support
+
+For issues or questions:
+- Check individual project README files
+- Review project-specific documentation
+- Open an issue in the repository
 
 ---
 
-## Troubleshooting
-- Ensure Docker containers are up: `docker compose ps`
-- Apply migrations before running: `npx prisma migrate deploy`
-- Regenerate Prisma client if schema changed: `npx prisma generate`
-- GraphQL endpoint is `/graphql` (POST). If you want a browser IDE, enable the landing page plugin (see above).
+## 🎓 Learning Resources
 
+### Technologies Used
+- [NestJS Documentation](https://docs.nestjs.com/)
+- [GraphQL Documentation](https://graphql.org/learn/)
+- [AWS SDK Documentation](https://docs.aws.amazon.com/sdk-for-javascript/)
+- [Meta Graph API](https://developers.facebook.com/docs/graph-api)
+- [Prisma Documentation](https://www.prisma.io/docs)
+
+---
+
+## 📊 Project Status
+
+| Project | Status | Version | Last Updated |
+|---------|--------|---------|--------------|
+| Bot | ✅ Active | 1.0.0 | 2024 |
+| CI-CD | ✅ Active | 1.0.0 | 2024 |
+| nest-graphql | ✅ Active | 0.0.1 | 2024 |
+| resource-optimizer-monorepo | 🚧 In Development | 0.0.1 | 2024 |
+| s3-rightsizeing | ✅ Active | 1.0.0 | 2024 |
+
+---
+
+**Made with ❤️ for cloud infrastructure and automation**
