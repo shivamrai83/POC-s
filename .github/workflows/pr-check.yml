@@ -25,7 +25,7 @@ jobs:
         run: cd CI-CD/frontend && npm install
       
       - name: Validate backend
-        run: cd CI-CD/backend && node -e "require('./server.js')" || echo "Backend validation"
+        run: cd CI-CD/backend && npm install
       
       - name: Build frontend
         run: cd CI-CD/frontend && npm run build
