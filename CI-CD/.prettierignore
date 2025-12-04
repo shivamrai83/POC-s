@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Build outputs
+build/
+dist/
+
+# Database
+*.db
+*.sqlite
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.local
+

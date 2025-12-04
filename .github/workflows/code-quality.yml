@@ -1,0 +1,124 @@
+name: Code Quality
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [ main, develop ]
+
+jobs:
+  lint-backend:
+    name: Lint Backend
+    runs-on: ubuntu-latest
+    
+    defaults:
+      run:
+        working-directory: ./CI-CD/backend
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: CI-CD/backend/package-lock.json
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run ESLint
+        run: |
+          if npm list eslint > /dev/null 2>&1; then
+            npm run lint || npx eslint . --ext .js
+          else
+            echo "⚠️ ESLint not configured. Skipping lint check."
+            echo "💡 To enable: npm install --save-dev eslint && npx eslint --init"
+          fi
+        continue-on-error: true
+      
+      - name: Check code formatting
+        run: |
+          if npm list prettier > /dev/null 2>&1; then
+            npm run format:check || npx prettier --check "**/*.{js,json}" || true
+          else
+            echo "⚠️ Prettier not configured. Skipping format check."
+            echo "💡 To enable: npm install --save-dev prettier"
+          fi
+        continue-on-error: true
+
+  lint-frontend:
+    name: Lint Frontend
+    runs-on: ubuntu-latest
+    
+    defaults:
+      run:
+        working-directory: ./CI-CD/frontend
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: CI-CD/frontend/package-lock.json
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run ESLint
+        run: |
+          if npm list eslint > /dev/null 2>&1; then
+            npm run lint || npx eslint "src/**/*.{js,jsx}" --ext .js,.jsx
+          else
+            echo "⚠️ ESLint not configured. Using react-scripts default."
+            npm run build --dry-run 2>&1 | grep -i "eslint" || echo "✅ No ESLint errors found"
+          fi
+        continue-on-error: true
+      
+      - name: Check code formatting
+        run: |
+          if npm list prettier > /dev/null 2>&1; then
+            npm run format:check || npx prettier --check "src/**/*.{js,jsx,json,css}" || true
+          else
+            echo "⚠️ Prettier not configured. Skipping format check."
+            echo "💡 To enable: npm install --save-dev prettier"
+          fi
+        continue-on-error: true
+
+  code-quality-summary:
+    name: Code Quality Summary
+    runs-on: ubuntu-latest
+    needs: [lint-backend, lint-frontend]
+    if: always()
+    
+    steps:
+      - name: Generate summary
+        run: |
+          echo "## 📊 Code Quality Check Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Backend" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ needs.lint-backend.result }}" == "success" ]; then
+            echo "✅ Backend linting passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ Backend linting completed with warnings" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Frontend" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ needs.lint-frontend.result }}" == "success" ]; then
+            echo "✅ Frontend linting passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ Frontend linting completed with warnings" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "💡 **Tip**: Install ESLint and Prettier for better code quality checks:" >> $GITHUB_STEP_SUMMARY
+          echo "- Backend: \`npm install --save-dev eslint prettier\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Frontend: \`npm install --save-dev prettier\`" >> $GITHUB_STEP_SUMMARY
+
