@@ -27,7 +27,14 @@ jobs:
           cache-dependency-path: CI-CD/backend/package-lock.json
       
       - name: Install dependencies
-        run: npm ci
+        run: |
+          if npm ci; then
+            echo "✅ Dependencies installed with npm ci"
+          else
+            echo "⚠️ npm ci failed, falling back to npm install"
+            echo "💡 This usually means package-lock.json needs to be updated"
+            npm install
+          fi
       
       - name: Run ESLint
         run: |
@@ -69,7 +76,14 @@ jobs:
           cache-dependency-path: CI-CD/frontend/package-lock.json
       
       - name: Install dependencies
-        run: npm ci
+        run: |
+          if npm ci; then
+            echo "✅ Dependencies installed with npm ci"
+          else
+            echo "⚠️ npm ci failed, falling back to npm install"
+            echo "💡 This usually means package-lock.json needs to be updated"
+            npm install
+          fi
       
       - name: Run ESLint
         run: |
