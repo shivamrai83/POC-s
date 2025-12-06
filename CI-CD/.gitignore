@@ -26,4 +26,11 @@ build/
 # Database
 *.db
 *.sqlite
+test-*.db
 
+# Test coverage
+coverage/
+.nyc_output/
+
+# Dependencies
+node_modules/
