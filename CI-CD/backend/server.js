@@ -3,29 +3,12 @@ const cors = require('cors');
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
-const app = express();
-const PORT = process.env.PORT || 5000;
-
-// Middleware
-app.use(cors());
-app.use(express.json());
-
-// Database setup
-const db = new sqlite3.Database('./todos.db', (err) => {
-  if (err) {
-    console.error('Error opening database:', err);
-  } else {
-    console.log('Connected to SQLite database');
-    db.run(`
-      CREATE TABLE IF NOT EXISTS todos (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        title TEXT NOT NULL,
-        completed BOOLEAN DEFAULT 0,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-  }
-});
+function createApp(db) {
+  const app = express();
+  
+  // Middleware
+  app.use(cors());
+  app.use(express.json());
 
 // Routes
 
@@ -143,12 +126,41 @@ app.delete('/api/todos/:id', (req, res) => {
   });
 });
 
-// Health check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', message: 'Todo API is running' });
-});
+  // Health check
+  app.get('/api/health', (req, res) => {
+    res.json({ status: 'OK', message: 'Todo API is running' });
+  });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+  return app;
+}
+
+// Database setup and server startup (only when not in test mode)
+if (require.main === module) {
+  const PORT = process.env.PORT || 5000;
+  const dbPath = process.env.TEST_DB_PATH || './todos.db';
+  
+  const db = new sqlite3.Database(dbPath, (err) => {
+    if (err) {
+      console.error('Error opening database:', err);
+    } else {
+      console.log('Connected to SQLite database');
+      db.run(`
+        CREATE TABLE IF NOT EXISTS todos (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          title TEXT NOT NULL,
+          completed BOOLEAN DEFAULT 0,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+    }
+  });
+
+  const app = createApp(db);
+  
+  app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+  });
+}
+
+module.exports = { createApp };
 

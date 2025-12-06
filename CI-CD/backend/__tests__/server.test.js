@@ -1,7 +1,7 @@
 const request = require('supertest');
 const sqlite3 = require('sqlite3').verbose();
 const fs = require('fs');
-const { createApp } = require('./helpers/test-server');
+const { createApp } = require('../server');
 
 // Create a test database
 const testDbPath = './test-todos.db';
