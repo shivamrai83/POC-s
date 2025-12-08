@@ -8,6 +8,9 @@ module.exports = {
     '!**/__tests__/**',
     '!jest.config.js'
   ],
+  coveragePathIgnorePatterns: [
+    '/node_modules/'
+  ],
   coverageThreshold: {
     global: {
       branches: 70,

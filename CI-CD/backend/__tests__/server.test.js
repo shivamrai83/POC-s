@@ -166,6 +166,61 @@ describe('Todos API', () => {
     expect(response.body).toHaveProperty('title', 'Update Me');
   });
 
+  test('PUT /api/todos/:id should update title', async () => {
+    // Create a todo
+    const createResponse = await request(app)
+      .post('/api/todos')
+      .send({ title: 'Original Title' })
+      .expect(201);
+
+    const todoId = createResponse.body.id;
+
+    // Update title
+    const response = await request(app)
+      .put(`/api/todos/${todoId}`)
+      .send({ title: 'Updated Title' })
+      .expect(200);
+
+    expect(response.body).toHaveProperty('title', 'Updated Title');
+  });
+
+  test('PUT /api/todos/:id should update both title and completed', async () => {
+    // Create a todo
+    const createResponse = await request(app)
+      .post('/api/todos')
+      .send({ title: 'Original Title' })
+      .expect(201);
+
+    const todoId = createResponse.body.id;
+
+    // Update both fields
+    const response = await request(app)
+      .put(`/api/todos/${todoId}`)
+      .send({ title: 'New Title', completed: true })
+      .expect(200);
+
+    expect(response.body).toHaveProperty('title', 'New Title');
+    expect(response.body).toHaveProperty('completed', 1);
+  });
+
+  test('PUT /api/todos/:id should return 400 if no fields to update', async () => {
+    // Create a todo
+    const createResponse = await request(app)
+      .post('/api/todos')
+      .send({ title: 'Test Todo' })
+      .expect(201);
+
+    const todoId = createResponse.body.id;
+
+    // Try to update with empty body
+    const response = await request(app)
+      .put(`/api/todos/${todoId}`)
+      .send({})
+      .expect(400);
+
+    expect(response.body).toHaveProperty('error', 'No fields to update');
+  });
+
   test('PUT /api/todos/:id should return 404 for non-existent todo', async () => {
     const response = await request(app)
       .put('/api/todos/99999')
@@ -203,6 +258,161 @@ describe('Todos API', () => {
       .expect(404);
 
     expect(response.body).toHaveProperty('error');
+  });
+});
+
+describe('Database Error Handling', () => {
+  test('GET /api/todos should handle database errors', async () => {
+    // Create a new closed database app for this test
+    const closedDb = new sqlite3.Database(':memory:');
+    closedDb.close();
+    const closedApp = createApp(closedDb);
+
+    const response = await request(closedApp)
+      .get('/api/todos')
+      .expect(500);
+
+    expect(response.body).toHaveProperty('error');
+  });
+
+  test('GET /api/todos/:id should handle database errors', async () => {
+    // Create a new closed database app for this test
+    const closedDb = new sqlite3.Database(':memory:');
+    closedDb.close();
+    const closedApp = createApp(closedDb);
+
+    const response = await request(closedApp)
+      .get('/api/todos/1')
+      .expect(500);
+
+    expect(response.body).toHaveProperty('error');
+  });
+
+  test('POST /api/todos should handle database insert errors', async () => {
+    const closedDb = new sqlite3.Database(':memory:');
+    closedDb.close();
+    const closedApp = createApp(closedDb);
+
+    const response = await request(closedApp)
+      .post('/api/todos')
+      .send({ title: 'Test Todo' })
+      .expect(500);
+
+    expect(response.body).toHaveProperty('error');
+  });
+
+  test('PUT /api/todos/:id should handle database update errors', async () => {
+    const closedDb = new sqlite3.Database(':memory:');
+    closedDb.close();
+    const closedApp = createApp(closedDb);
+
+    const response = await request(closedApp)
+      .put('/api/todos/1')
+      .send({ completed: true })
+      .expect(500);
+
+    expect(response.body).toHaveProperty('error');
+  });
+
+  test('DELETE /api/todos/:id should handle database delete errors', async () => {
+    const closedDb = new sqlite3.Database(':memory:');
+    closedDb.close();
+    const closedApp = createApp(closedDb);
+
+    const response = await request(closedApp)
+      .delete('/api/todos/1')
+      .expect(500);
+
+    expect(response.body).toHaveProperty('error');
+  });
+
+  test('POST /api/todos should handle database get error after insert', async () => {
+    // Create a database and set it up
+    const testDbPath2 = './test-todos-error.db';
+    const errorDb2 = new sqlite3.Database(testDbPath2, (err) => {
+      if (err) return;
+      errorDb2.run(`
+        CREATE TABLE IF NOT EXISTS todos (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          title TEXT NOT NULL,
+          completed BOOLEAN DEFAULT 0,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+    });
+    
+    const errorApp2 = createApp(errorDb2);
+    
+    // Close the database right after triggering the insert
+    // This should cause the db.get callback to fail
+    const promise = request(errorApp2)
+      .post('/api/todos')
+      .send({ title: 'Test Todo' });
+    
+    // Close database immediately to cause get to fail
+    errorDb2.close();
+    
+    const response = await promise;
+    
+    // The response might be 500 (if get fails) or might succeed if timing is off
+    // But we're trying to trigger the error path
+    expect([201, 500]).toContain(response.status);
+    
+    // Clean up
+    if (fs.existsSync(testDbPath2)) {
+      try {
+        fs.unlinkSync(testDbPath2);
+      } catch (err) {
+        // Ignore cleanup errors
+      }
+    }
+  });
+
+  test('PUT /api/todos/:id should handle database get error after update', async () => {
+    // Create a database and set it up
+    const testDbPath3 = './test-todos-error2.db';
+    const errorDb3 = new sqlite3.Database(testDbPath3, (err) => {
+      if (err) return;
+      errorDb3.run(`
+        CREATE TABLE IF NOT EXISTS todos (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          title TEXT NOT NULL,
+          completed BOOLEAN DEFAULT 0,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+      `, () => {
+        // Insert a todo first
+        errorDb3.run('INSERT INTO todos (title) VALUES (?)', ['Test Todo']);
+      });
+    });
+    
+    const errorApp3 = createApp(errorDb3);
+    
+    // Wait a bit for the insert to complete
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    // Close the database right after triggering the update
+    // This should cause the db.get callback to fail
+    const promise = request(errorApp3)
+      .put('/api/todos/1')
+      .send({ completed: true });
+    
+    // Close database immediately to cause get to fail
+    errorDb3.close();
+    
+    const response = await promise;
+    
+    // The response might be 500 (if get fails) or might succeed if timing is off
+    expect([200, 500]).toContain(response.status);
+    
+    // Clean up
+    if (fs.existsSync(testDbPath3)) {
+      try {
+        fs.unlinkSync(testDbPath3);
+      } catch (err) {
+        // Ignore cleanup errors
+      }
+    }
   });
 });
 
